@@ -37,6 +37,15 @@ const Clubs = () => {
     club.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleToggleStatus = async (id) => {
+    try {
+      const { data } = await axios.put(`/api/admin/clubs/${id}/toggle-status`);
+      setClubs(clubs.map(c => c.id === id ? { ...c, is_active: data.is_active } : c));
+    } catch (err) {
+      alert('Failed to toggle status');
+    }
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>;
 
   return (
@@ -92,8 +101,10 @@ const Clubs = () => {
                   {new Date(club.created_at).toLocaleDateString()}
                 </td>
                 <td className="table-cell">
-                  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
-                    Active
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                    club.is_active !== false ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'
+                  }`}>
+                    {club.is_active !== false ? 'Active' : 'Deactivated'}
                   </span>
                 </td>
                 <td className="table-cell text-right">
@@ -101,8 +112,12 @@ const Clubs = () => {
                     <button className="p-2 text-surface-400 hover:text-brand-600" title="View History">
                       <ExternalLink className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-surface-400 hover:text-red-600" title="Deactivate">
-                      <XCircle className="w-4 h-4" />
+                    <button 
+                      onClick={() => handleToggleStatus(club.id)} 
+                      className={`p-2 ${club.is_active !== false ? 'text-surface-400 hover:text-red-600' : 'text-red-600 hover:text-emerald-600'}`} 
+                      title={club.is_active !== false ? "Deactivate" : "Activate"}
+                    >
+                      {club.is_active !== false ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                     </button>
                   </div>
                 </td>

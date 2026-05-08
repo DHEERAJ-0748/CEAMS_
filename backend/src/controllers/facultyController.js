@@ -22,6 +22,27 @@ export const getPendingEvents = async (req, res) => {
   }
 };
 
+// @desc    Get all events (for faculty view)
+// @route   GET /api/faculty/all-events
+// @access  Private (Faculty only)
+export const getAllEvents = async (req, res) => {
+  try {
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*, users(club_name)')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      res.status(400);
+      throw new Error(error.message);
+    }
+
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(res.statusCode === 200 ? 500 : res.statusCode).json({ message: error.message });
+  }
+};
+
 // @desc    Approve event by faculty
 // @route   PUT /api/faculty/:id/approve
 // @access  Private (Faculty only)

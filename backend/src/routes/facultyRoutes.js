@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPendingEvents, approveEvent, rejectEvent } from '../controllers/facultyController.js';
+import { getPendingEvents, approveEvent, rejectEvent, getAllEvents } from '../controllers/facultyController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
@@ -10,6 +10,7 @@ router.use(protect);
 router.use(authorizeRoles('faculty'));
 
 router.get('/pending-events', getPendingEvents);
+router.get('/all-events', getAllEvents);
 router.put('/:id/approve', approveEvent);
 router.put('/:id/reject', rejectEvent);
 

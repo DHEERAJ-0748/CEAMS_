@@ -20,10 +20,8 @@ const Events = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const { data } = await axios.get('/api/faculty/pending-events'); // We'll just show all relevant to faculty or all approved
-        // In a real app, maybe a separate API for "all institutional events"
-        const allRes = await axios.get('/api/events/my-events'); // Faculty might see different things, using what's available
-        setEvents(allRes.data);
+        const { data } = await axios.get('/api/faculty/all-events');
+        setEvents(data);
       } catch (err) {
         console.error('Error fetching events', err);
       } finally {
@@ -95,9 +93,12 @@ const Events = () => {
                 </td>
                 <td className="table-cell">
                   <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
-                    event.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-surface-100 text-surface-500 border-surface-200'
+                    event.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                    event.status.includes('rejected') ? 'bg-red-50 text-red-700 border-red-100' :
+                    event.status.includes('pending') ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                    'bg-surface-100 text-surface-500 border-surface-200'
                   }`}>
-                    {event.status.replace('_', ' ')}
+                    {event.status.replace(/_/g, ' ')}
                   </span>
                 </td>
               </tr>

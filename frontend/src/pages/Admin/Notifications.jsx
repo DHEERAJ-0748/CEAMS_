@@ -17,6 +17,8 @@ import {
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [sentNotifications, setSentNotifications] = useState([]);
+  const [activeTab, setActiveTab] = useState('inbox');
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [composeOpen, setComposeOpen] = useState(false);
@@ -29,11 +31,13 @@ const Notifications = () => {
 
   const fetchData = async () => {
     try {
-      const [notifRes, clubRes] = await Promise.all([
+      const [notifRes, sentRes, clubRes] = await Promise.all([
         axios.get('/api/notifications'),
+        axios.get('/api/notifications/sent'),
         axios.get('/api/admin/clubs')
       ]);
       setNotifications(notifRes.data);
+      setSentNotifications(sentRes.data);
       setClubs(clubRes.data);
     } catch (err) {
       console.error('Error fetching data', err);
@@ -85,15 +89,21 @@ const Notifications = () => {
       <div className="flex-1 flex overflow-hidden bg-white rounded-2xl shadow-sm border border-surface-200">
         {/* Sidebar / Folders */}
         <div className="w-64 border-r border-surface-200 p-4 space-y-1 hidden md:block">
-           <button className="flex items-center justify-between w-full px-4 py-2.5 bg-brand-50 text-brand-700 rounded-lg font-bold text-sm">
+           <button 
+             onClick={() => setActiveTab('inbox')}
+             className={`flex items-center justify-between w-full px-4 py-2.5 rounded-lg font-bold text-sm ${activeTab === 'inbox' ? 'bg-brand-50 text-brand-700' : 'text-surface-500 hover:bg-surface-50'}`}
+           >
              <div className="flex items-center gap-3">
                <Bell className="w-4 h-4" /> Inbox
              </div>
-             <span className="bg-brand-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+             <span className={`${activeTab === 'inbox' ? 'bg-brand-600 text-white' : 'bg-surface-200 text-surface-600'} text-[10px] px-1.5 py-0.5 rounded-full`}>
                {notifications.filter(n => !n.read).length}
              </span>
            </button>
-           <button className="flex items-center gap-3 w-full px-4 py-2.5 text-surface-500 hover:bg-surface-50 rounded-lg font-medium text-sm">
+           <button 
+             onClick={() => setActiveTab('sent')}
+             className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-lg font-medium text-sm ${activeTab === 'sent' ? 'bg-brand-50 text-brand-700' : 'text-surface-500 hover:bg-surface-50'}`}
+           >
              <Send className="w-4 h-4" /> Sent
            </button>
         </div>
@@ -105,40 +115,47 @@ const Notifications = () => {
                 <input type="checkbox" className="rounded border-surface-300" />
                 <button className="p-1.5 text-surface-400 hover:bg-surface-100 rounded-lg"><Filter className="w-4 h-4" /></button>
              </div>
-             <div className="text-xs text-surface-400 font-medium">1-{notifications.length} of {notifications.length}</div>
+             <div className="text-xs text-surface-400 font-medium">
+               1-{(activeTab === 'inbox' ? notifications : sentNotifications).length} of {(activeTab === 'inbox' ? notifications : sentNotifications).length}
+             </div>
           </div>
           
           <div className="flex-1 overflow-y-auto">
-            {notifications.map((notif) => (
+            {(activeTab === 'inbox' ? notifications : sentNotifications).map((notif) => (
               <div 
                 key={notif.id} 
-                onClick={() => !notif.read && markAsRead(notif.id)}
-                className={`flex items-center gap-4 px-6 py-4 border-b border-surface-100 hover:shadow-inner cursor-pointer transition-colors ${
-                  notif.read ? 'bg-white opacity-60' : 'bg-brand-50/30'
+                onClick={() => activeTab === 'inbox' && !notif.read && markAsRead(notif.id)}
+                className={`flex items-center gap-4 px-6 py-4 border-b border-surface-100 transition-colors ${
+                  activeTab === 'inbox' && !notif.read ? 'bg-brand-50/30 hover:shadow-inner cursor-pointer' : 'bg-white opacity-80'
                 }`}
               >
                 <input type="checkbox" className="rounded border-surface-300" onClick={(e) => e.stopPropagation()} />
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  notif.read ? 'bg-surface-100 text-surface-400' : 'bg-brand-100 text-brand-600'
+                  activeTab === 'inbox' && !notif.read ? 'bg-brand-100 text-brand-600' : 'bg-surface-100 text-surface-400'
                 }`}>
                   <User className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-sm ${notif.read ? 'font-medium text-surface-600' : 'font-bold text-surface-900'}`}>
+                    <span className={`text-sm ${activeTab === 'inbox' && !notif.read ? 'font-bold text-surface-900' : 'font-medium text-surface-600'}`}>
                       {notif.title}
                     </span>
+                    {activeTab === 'sent' && (
+                      <span className="text-[10px] bg-surface-100 text-surface-500 px-2 py-0.5 rounded">
+                        To: {notif.users?.club_name || notif.users?.name || 'Unknown'}
+                      </span>
+                    )}
                     <span className="text-[10px] text-surface-400 whitespace-nowrap">{new Date(notif.created_at).toLocaleDateString()}</span>
                   </div>
                   <p className="text-xs text-surface-500 truncate">{notif.message}</p>
                 </div>
-                {!notif.read && <div className="w-2 h-2 rounded-full bg-brand-600 shrink-0"></div>}
+                {activeTab === 'inbox' && !notif.read && <div className="w-2 h-2 rounded-full bg-brand-600 shrink-0"></div>}
               </div>
             ))}
-            {notifications.length === 0 && (
+            {(activeTab === 'inbox' ? notifications : sentNotifications).length === 0 && (
               <div className="py-20 text-center text-surface-400">
                 <MailOpen className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p className="text-sm">No notifications found.</p>
+                <p className="text-sm">No {activeTab} notifications found.</p>
               </div>
             )}
           </div>

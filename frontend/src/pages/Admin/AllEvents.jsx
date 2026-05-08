@@ -54,18 +54,23 @@ const AllEvents = () => {
     if (!selectedEvent) return;
     setActionLoading(true);
     try {
+      let updatedStatus = '';
       if (actionModal === 'approve') {
         await axios.put(`/api/admin/${selectedEvent.id}/approve`, { remarks });
+        updatedStatus = 'approved';
       } else if (actionModal === 'reject') {
         await axios.put(`/api/admin/${selectedEvent.id}/reject`, { reason: remarks });
+        updatedStatus = 'rejected_by_admin';
       } else if (actionModal === 'sendback') {
         // Assuming there's a sendback status, using faculty_pending as a proxy or custom logic
         await axios.put(`/api/admin/${selectedEvent.id}/reject`, { reason: `Send Back: ${remarks}` });
+        updatedStatus = 'rejected_by_admin';
       }
+      
+      setEvents(events.map(e => e.id === selectedEvent.id ? { ...e, status: updatedStatus } : e));
       setActionModal(null);
       setSelectedEvent(null);
       setRemarks('');
-      fetchEvents();
     } catch (err) {
       alert('Action failed');
     } finally {

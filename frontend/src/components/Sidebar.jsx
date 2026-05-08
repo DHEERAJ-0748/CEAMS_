@@ -58,6 +58,7 @@ const Sidebar = () => {
             <NavItem to="/club/dashboard" icon={LayoutDashboard} label="Dashboard" />
             <NavItem to="/club/create-event" icon={CalendarPlus} label="Create Event" />
             <NavItem to="/club/my-events" icon={List} label="My Events" />
+            <NavItem to="/club/notifications" icon={Bell} label="Notifications" />
           </>
         )}
 

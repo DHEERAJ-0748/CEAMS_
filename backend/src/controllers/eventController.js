@@ -28,6 +28,19 @@ export const createEvent = async (req, res) => {
       throw new Error('Please add all required fields');
     }
 
+    // Check if club is active
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('is_active')
+      .eq('id', req.user.id)
+      .single();
+
+    if (userError) throw userError;
+    if (userRecord && userRecord.is_active === false) {
+      res.status(403);
+      throw new Error('Club temporarily deactivated by admin.');
+    }
+
     // Check if the date is blocked in academic calendar
     const { data: blockedDate, error: calendarError } = await supabase
       .from('academic_calendar')
