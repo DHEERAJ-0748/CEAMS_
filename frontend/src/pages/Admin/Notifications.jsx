@@ -28,6 +28,8 @@ const Notifications = () => {
     message: '',
     type: 'info'
   });
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -56,6 +58,14 @@ const Notifications = () => {
       setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (err) {
       console.error('Failed to mark read', err);
+    }
+  };
+
+  const handleView = (notif) => {
+    setSelectedNotif(notif);
+    setViewOpen(true);
+    if (activeTab === 'inbox' && !notif.read) {
+      markAsRead(notif.id);
     }
   };
 
@@ -124,9 +134,9 @@ const Notifications = () => {
             {(activeTab === 'inbox' ? notifications : sentNotifications).map((notif) => (
               <div 
                 key={notif.id} 
-                onClick={() => activeTab === 'inbox' && !notif.read && markAsRead(notif.id)}
-                className={`flex items-center gap-4 px-6 py-4 border-b border-surface-100 transition-colors ${
-                  activeTab === 'inbox' && !notif.read ? 'bg-brand-50/30 hover:shadow-inner cursor-pointer' : 'bg-white opacity-80'
+                onClick={() => handleView(notif)}
+                className={`flex items-center gap-4 px-6 py-4 border-b border-surface-100 transition-colors cursor-pointer hover:bg-surface-50 ${
+                  activeTab === 'inbox' && !notif.read ? 'bg-brand-50/30' : 'bg-white opacity-80'
                 }`}
               >
                 <input type="checkbox" className="rounded border-surface-300" onClick={(e) => e.stopPropagation()} />
@@ -215,6 +225,53 @@ const Notifications = () => {
                  </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* View Modal */}
+      {viewOpen && selectedNotif && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm" onClick={() => setViewOpen(false)}></div>
+          <div className="relative bg-white rounded-2xl w-full max-w-2xl shadow-2xl animate-slide-up overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="bg-surface-50 p-6 border-b border-surface-200 flex justify-between items-start shrink-0">
+               <div className="flex-1 min-w-0 pr-8">
+                  <h3 className="text-xl font-bold text-surface-900 mb-2 leading-tight">{selectedNotif.title}</h3>
+                  <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-surface-500">
+                     <span className="flex items-center gap-1.5 font-medium">
+                        <User className="w-3.5 h-3.5" /> 
+                        {activeTab === 'sent' ? `To: ${selectedNotif.users?.club_name || selectedNotif.users?.name || 'Unknown'}` : 'From: System Administrator'}
+                     </span>
+                     <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" /> {new Date(selectedNotif.created_at).toLocaleString()}
+                     </span>
+                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        selectedNotif.type === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-brand-100 text-brand-700'
+                     }`}>
+                        {selectedNotif.type || 'info'}
+                     </span>
+                  </div>
+               </div>
+               <button onClick={() => setViewOpen(false)} className="p-2 text-surface-400 hover:text-surface-900 hover:bg-surface-100 rounded-lg transition-colors">
+                  <Plus className="w-6 h-6 rotate-45" />
+               </button>
+            </div>
+            
+            <div className="p-8 overflow-y-auto flex-1">
+               <div className="prose prose-sm max-w-none text-surface-700 leading-relaxed whitespace-pre-wrap">
+                  {selectedNotif.message}
+               </div>
+            </div>
+            
+            <div className="p-6 border-t border-surface-200 bg-surface-50 flex justify-end gap-3 shrink-0">
+               <button onClick={() => setViewOpen(false)} className="btn-secondary px-6">Close</button>
+               {activeTab === 'inbox' && (
+                 <button className="btn-primary px-6 flex items-center gap-2">
+                   <Send className="w-4 h-4" /> Reply
+                 </button>
+               )}
+            </div>
           </div>
         </div>
       )}

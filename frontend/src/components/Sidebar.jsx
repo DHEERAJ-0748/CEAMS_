@@ -70,6 +70,7 @@ const Sidebar = () => {
             <NavItem to="/faculty/calendar" icon={CalendarDays} label="Calendar" />
             <NavItem to="/faculty/venues" icon={MapPin} label="Venues" />
             <NavItem to="/faculty/statistics" icon={BarChart3} label="Statistics" />
+            <NavItem to="/faculty/notifications" icon={Bell} label="Notifications" />
             <NavItem to="/faculty/settings" icon={Settings} label="Settings" />
           </>
         )}

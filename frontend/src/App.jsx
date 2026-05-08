@@ -21,6 +21,7 @@ import FacultyCalendar from './pages/Faculty/Calendar';
 import FacultyVenues from './pages/Faculty/Venues';
 import FacultyStatistics from './pages/Faculty/Statistics';
 import FacultySettings from './pages/Faculty/Settings';
+import FacultyNotifications from './pages/Faculty/Notifications';
 
 // Admin Pages
 import AdminDashboard from './pages/Admin/Dashboard';
@@ -79,6 +80,7 @@ function App() {
                   <Route path="calendar" element={<FacultyCalendar />} />
                   <Route path="venues" element={<FacultyVenues />} />
                   <Route path="statistics" element={<FacultyStatistics />} />
+                  <Route path="notifications" element={<FacultyNotifications />} />
                   <Route path="settings" element={<FacultySettings />} />
                 </Routes>
               </DashboardLayout>
