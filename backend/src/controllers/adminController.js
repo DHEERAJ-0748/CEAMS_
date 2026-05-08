@@ -83,3 +83,27 @@ export const rejectEvent = async (req, res) => {
     res.status(res.statusCode === 200 ? 500 : res.statusCode).json({ message: error.message });
   }
 };
+
+// @desc    Get all clubs
+// @route   GET /api/admin/clubs
+// @access  Private (Admin only)
+export const getClubs = async (req, res) => {
+  try {
+    const { data: clubs, error } = await supabase
+      .from('users')
+      .select('id, name, email, club_name, created_at')
+      .eq('role', 'club')
+      .order('club_name', { ascending: true });
+
+    if (error) {
+      res.status(400);
+      throw new Error(error.message);
+    }
+
+    // We can also fetch the number of events conducted per club, but for simplicity
+    // we return the clubs first. Ideally, we fetch events grouped by club.
+    res.status(200).json(clubs);
+  } catch (error) {
+    res.status(res.statusCode === 200 ? 500 : res.statusCode).json({ message: error.message });
+  }
+};

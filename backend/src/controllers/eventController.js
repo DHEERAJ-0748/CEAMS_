@@ -28,6 +28,21 @@ export const createEvent = async (req, res) => {
       throw new Error('Please add all required fields');
     }
 
+    // Check if the date is blocked in academic calendar
+    const { data: blockedDate, error: calendarError } = await supabase
+      .from('academic_calendar')
+      .select('title, type')
+      .lte('start_date', event_date)
+      .gte('end_date', event_date)
+      .in('type', ['blocked', 'exam'])
+      .maybeSingle();
+
+    if (calendarError) throw calendarError;
+    if (blockedDate) {
+      res.status(400);
+      throw new Error(`The selected date is blocked due to: ${blockedDate.title} (${blockedDate.type})`);
+    }
+
     const { data: event, error } = await supabase
       .from('events')
       .insert([

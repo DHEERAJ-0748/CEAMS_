@@ -14,11 +14,23 @@ import MyEvents from './pages/Club/MyEvents';
 
 // Faculty Pages
 import FacultyDashboard from './pages/Faculty/Dashboard';
+import FacultyEvents from './pages/Faculty/Events';
 import PendingEvents from './pages/Faculty/PendingEvents';
+import FacultyCalendar from './pages/Faculty/Calendar';
+import FacultyVenues from './pages/Faculty/Venues';
+import FacultyStatistics from './pages/Faculty/Statistics';
+import FacultySettings from './pages/Faculty/Settings';
 
 // Admin Pages
 import AdminDashboard from './pages/Admin/Dashboard';
 import AllEvents from './pages/Admin/AllEvents';
+import AdminVenues from './pages/Admin/Venues';
+import AdminCalendar from './pages/Admin/Calendar';
+import AdminClubs from './pages/Admin/Clubs';
+import AdminApprovals from './pages/Admin/Approvals';
+import AdminNotifications from './pages/Admin/Notifications';
+import AdminAnalytics from './pages/Admin/Analytics';
+import AdminSettings from './pages/Admin/Settings';
 
 const RootRedirect = () => {
   const { user } = useAuth();
@@ -60,7 +72,12 @@ function App() {
               <DashboardLayout>
                 <Routes>
                   <Route path="dashboard" element={<FacultyDashboard />} />
+                  <Route path="events" element={<FacultyEvents />} />
                   <Route path="pending-events" element={<PendingEvents />} />
+                  <Route path="calendar" element={<FacultyCalendar />} />
+                  <Route path="venues" element={<FacultyVenues />} />
+                  <Route path="statistics" element={<FacultyStatistics />} />
+                  <Route path="settings" element={<FacultySettings />} />
                 </Routes>
               </DashboardLayout>
             </ProtectedRoute>
@@ -73,6 +90,13 @@ function App() {
                 <Routes>
                   <Route path="dashboard" element={<AdminDashboard />} />
                   <Route path="events" element={<AllEvents />} />
+                  <Route path="venues" element={<AdminVenues />} />
+                  <Route path="calendar" element={<AdminCalendar />} />
+                  <Route path="clubs" element={<AdminClubs />} />
+                  <Route path="approvals" element={<AdminApprovals />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="settings" element={<AdminSettings />} />
                 </Routes>
               </DashboardLayout>
             </ProtectedRoute>
