@@ -5,9 +5,9 @@ import { getNotifications, markAsRead, createNotification, getSentNotifications 
 
 const router = express.Router();
 
-router.get('/sent', protect, authorizeRoles('admin', 'principal'), getSentNotifications);
+router.get('/sent', protect, authorizeRoles('admin', 'principal', 'faculty', 'club'), getSentNotifications);
 router.get('/', protect, getNotifications);
 router.put('/:id/read', protect, markAsRead);
-router.post('/', protect, authorizeRoles('admin', 'principal'), createNotification);
+router.post('/', protect, authorizeRoles('admin', 'principal', 'faculty', 'club'), createNotification);
 
 export default router;

@@ -7,7 +7,7 @@ export const getNotifications = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('notifications')
-      .select('*')
+      .select('*, sender:users!notifications_sender_id_fkey(name, email, club_name, role)')
       .eq('user_id', req.user.id)
       .order('created_at', { ascending: false });
 
@@ -20,12 +20,12 @@ export const getNotifications = async (req, res) => {
 
 // @desc    Get sent notifications
 // @route   GET /api/notifications/sent
-// @access  Private (Admin)
+// @access  Private
 export const getSentNotifications = async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('notifications')
-      .select('*, users!notifications_user_id_fkey(name, club_name)') // join with users to get recipient name
+      .select('*, recipient:users!notifications_user_id_fkey(name, email, club_name, role)')
       .eq('sender_id', req.user.id)
       .order('created_at', { ascending: false });
 
@@ -57,20 +57,37 @@ export const markAsRead = async (req, res) => {
   }
 };
 
-// @desc    Create notification (Internal/Admin utility)
+// @desc    Create notification
 // @route   POST /api/notifications
-// @access  Private (Admin)
+// @access  Private
 export const createNotification = async (req, res) => {
   try {
-    const { user_id, title, message, type } = req.body;
+    const { recipient_email, title, message, type } = req.body;
     
-    if (!user_id || !title || !message) {
+    if (!recipient_email || !title || !message) {
       return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Find recipient by email
+    const { data: recipient, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', recipient_email)
+      .single();
+
+    if (userError || !recipient) {
+      return res.status(404).json({ message: 'Recipient email not found in the system' });
     }
 
     const { data, error } = await supabase
       .from('notifications')
-      .insert([{ user_id, sender_id: req.user.id, title, message, type: type || 'info' }])
+      .insert([{ 
+        user_id: recipient.id, 
+        sender_id: req.user.id, 
+        title, 
+        message, 
+        type: type || 'info' 
+      }])
       .select()
       .single();
 

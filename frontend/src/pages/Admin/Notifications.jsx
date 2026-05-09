@@ -23,7 +23,7 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [composeOpen, setComposeOpen] = useState(false);
   const [formData, setFormData] = useState({
-    user_id: '',
+    recipient_email: '',
     title: '',
     message: '',
     type: 'info'
@@ -33,14 +33,12 @@ const Notifications = () => {
 
   const fetchData = async () => {
     try {
-      const [notifRes, sentRes, clubRes] = await Promise.all([
+      const [notifRes, sentRes] = await Promise.all([
         axios.get('/api/notifications'),
-        axios.get('/api/notifications/sent'),
-        axios.get('/api/admin/clubs')
+        axios.get('/api/notifications/sent')
       ]);
       setNotifications(notifRes.data);
       setSentNotifications(sentRes.data);
-      setClubs(clubRes.data);
     } catch (err) {
       console.error('Error fetching data', err);
     } finally {
@@ -74,11 +72,11 @@ const Notifications = () => {
     try {
       await axios.post('/api/notifications', formData);
       setComposeOpen(false);
-      setFormData({ user_id: '', title: '', message: '', type: 'info' });
+      setFormData({ recipient_email: '', title: '', message: '', type: 'info' });
       fetchData();
       alert('Notification sent');
     } catch (err) {
-      alert('Send failed');
+      alert(err.response?.data?.message || 'Send failed');
     }
   };
 
@@ -89,7 +87,7 @@ const Notifications = () => {
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-surface-900">Notification Center</h1>
-          <p className="text-surface-500 text-sm">Communicate with club coordinators and track system alerts.</p>
+          <p className="text-surface-500 text-sm">Communicate with institutional members and track system alerts.</p>
         </div>
         <button onClick={() => setComposeOpen(true)} className="btn-primary flex items-center gap-2">
           <Send className="w-4 h-4" /> Compose
@@ -136,7 +134,7 @@ const Notifications = () => {
                 key={notif.id} 
                 onClick={() => handleView(notif)}
                 className={`flex items-center gap-4 px-6 py-4 border-b border-surface-100 transition-colors cursor-pointer hover:bg-surface-50 ${
-                  activeTab === 'inbox' && !notif.read ? 'bg-brand-50/30' : 'bg-white opacity-80'
+                  activeTab === 'inbox' && !notif.read ? 'bg-brand-50/30' : 'bg-white'
                 }`}
               >
                 <input type="checkbox" className="rounded border-surface-300" onClick={(e) => e.stopPropagation()} />
@@ -150,12 +148,10 @@ const Notifications = () => {
                     <span className={`text-sm ${activeTab === 'inbox' && !notif.read ? 'font-bold text-surface-900' : 'font-medium text-surface-600'}`}>
                       {notif.title}
                     </span>
-                    {activeTab === 'sent' && (
-                      <span className="text-[10px] bg-surface-100 text-surface-500 px-2 py-0.5 rounded">
-                        To: {notif.users?.club_name || notif.users?.name || 'Unknown'}
-                      </span>
-                    )}
-                    <span className="text-[10px] text-surface-400 whitespace-nowrap">{new Date(notif.created_at).toLocaleDateString()}</span>
+                    <span className="text-[10px] bg-surface-100 text-surface-500 px-2 py-0.5 rounded truncate max-w-[150px]">
+                      {activeTab === 'sent' ? `To: ${notif.recipient?.email}` : `From: ${notif.sender?.email || 'System'}`}
+                    </span>
+                    <span className="text-[10px] text-surface-400 whitespace-nowrap ml-auto">{new Date(notif.created_at).toLocaleDateString()}</span>
                   </div>
                   <p className="text-xs text-surface-500 truncate">{notif.message}</p>
                 </div>
@@ -179,22 +175,19 @@ const Notifications = () => {
           <div className="relative bg-white rounded-2xl w-full max-w-lg shadow-2xl animate-slide-up overflow-hidden">
             <div className="bg-brand-900 p-4 text-white flex justify-between items-center">
               <h3 className="font-bold">New Notification</h3>
-              <button onClick={() => setComposeOpen(false)} className="text-brand-300 hover:text-white">×</button>
+              <button onClick={() => setComposeOpen(false)} className="text-brand-300 hover:text-white text-xl">×</button>
             </div>
             <form onSubmit={handleSend} className="p-8 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-surface-700 mb-1">To (Club)</label>
-                <select 
+                <label className="block text-sm font-semibold text-surface-700 mb-1">Recipient Email</label>
+                <input 
+                  type="email" 
                   className="input-field" 
                   required 
-                  value={formData.user_id}
-                  onChange={(e) => setFormData({...formData, user_id: e.target.value})}
-                >
-                  <option value="">Select a club coordinator</option>
-                  {clubs.map(club => (
-                    <option key={club.id} value={club.id}>{club.club_name} ({club.name})</option>
-                  ))}
-                </select>
+                  placeholder="name@institution.edu"
+                  value={formData.recipient_email}
+                  onChange={(e) => setFormData({...formData, recipient_email: e.target.value})}
+                />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-surface-700 mb-1">Subject</label>
@@ -216,10 +209,7 @@ const Notifications = () => {
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                 ></textarea>
               </div>
-              <div className="flex items-center justify-between pt-4">
-                 <div className="flex gap-2">
-                    <button type="button" className="p-2 text-surface-400 hover:bg-surface-50 rounded-lg"><Plus className="w-5 h-5" /></button>
-                 </div>
+              <div className="flex items-center justify-end pt-4">
                  <button type="submit" className="btn-primary flex items-center gap-2 px-8">
                    Send <Send className="w-4 h-4" />
                  </button>
@@ -228,7 +218,6 @@ const Notifications = () => {
           </div>
         </div>
       )}
-
 
       {/* View Modal */}
       {viewOpen && selectedNotif && (
@@ -241,15 +230,10 @@ const Notifications = () => {
                   <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-surface-500">
                      <span className="flex items-center gap-1.5 font-medium">
                         <User className="w-3.5 h-3.5" /> 
-                        {activeTab === 'sent' ? `To: ${selectedNotif.users?.club_name || selectedNotif.users?.name || 'Unknown'}` : 'From: System Administrator'}
+                        {activeTab === 'sent' ? `To: ${selectedNotif.recipient?.email || 'Unknown'}` : `From: ${selectedNotif.sender?.email || 'System'}`}
                      </span>
-                     <span className="flex items-center gap-1.5">
+                     <span className="flex items-center gap-1.5 text-[10px]">
                         <Clock className="w-3.5 h-3.5" /> {new Date(selectedNotif.created_at).toLocaleString()}
-                     </span>
-                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        selectedNotif.type === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-brand-100 text-brand-700'
-                     }`}>
-                        {selectedNotif.type || 'info'}
                      </span>
                   </div>
                </div>
@@ -258,19 +242,14 @@ const Notifications = () => {
                </button>
             </div>
             
-            <div className="p-8 overflow-y-auto flex-1">
-               <div className="prose prose-sm max-w-none text-surface-700 leading-relaxed whitespace-pre-wrap">
+            <div className="p-8 overflow-y-auto flex-1 bg-white">
+               <div className="text-surface-700 leading-relaxed whitespace-pre-wrap text-sm">
                   {selectedNotif.message}
                </div>
             </div>
             
             <div className="p-6 border-t border-surface-200 bg-surface-50 flex justify-end gap-3 shrink-0">
                <button onClick={() => setViewOpen(false)} className="btn-secondary px-6">Close</button>
-               {activeTab === 'inbox' && (
-                 <button className="btn-primary px-6 flex items-center gap-2">
-                   <Send className="w-4 h-4" /> Reply
-                 </button>
-               )}
             </div>
           </div>
         </div>
