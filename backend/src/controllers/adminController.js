@@ -33,8 +33,9 @@ export const approveEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'admin_approved',
+        status: 'approved',
         admin_remarks: remarks || null,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -67,8 +68,9 @@ export const rejectEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'admin_rejected',
+        status: 'rejected',
         rejection_reason: reason,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()

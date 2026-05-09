@@ -48,18 +48,23 @@ const Notifications = () => {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+      <p className="text-sm text-surface-400 font-medium">Loading notifications...</p>
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-120px)] animate-fade-in">
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">Notification Center</h1>
-          <p className="text-surface-500 text-sm">Review messages and alerts from administrators.</p>
+          <h1 className="text-xl font-extrabold text-surface-900 tracking-tight">Notifications</h1>
+          <p className="text-surface-400 text-sm mt-0.5">Review messages and alerts from administrators.</p>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden bg-white rounded-2xl shadow-sm border border-surface-200">
+      <div className="flex-1 flex overflow-hidden bg-white rounded-2xl shadow-card border border-surface-100">
         <div className="w-64 border-r border-surface-200 p-4 space-y-1 hidden md:block">
            <button className="flex items-center justify-between w-full px-4 py-2.5 bg-brand-50 text-brand-700 rounded-lg font-bold text-sm">
              <div className="flex items-center gap-3">
@@ -121,7 +126,7 @@ const Notifications = () => {
       {viewOpen && selectedNotif && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm" onClick={() => setViewOpen(false)}></div>
-          <div className="relative bg-white rounded-2xl w-full max-w-2xl shadow-2xl animate-slide-up overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="relative bg-white rounded-2xl w-full max-w-2xl shadow-elevated animate-scale-in overflow-hidden flex flex-col max-h-[85vh]">
             <div className="bg-surface-50 p-6 border-b border-surface-200 flex justify-between items-start shrink-0">
                <div className="flex-1 min-w-0 pr-8">
                   <h3 className="text-xl font-bold text-surface-900 mb-2 leading-tight">{selectedNotif.title}</h3>

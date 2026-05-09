@@ -7,11 +7,9 @@ import {
   DollarSign, 
   Clock, 
   MapPin, 
-  Building, 
   Loader2, 
-  ArrowRight,
-  ShieldAlert,
-  MessageSquare
+  ShieldCheck,
+  Inbox
 } from 'lucide-react';
 
 const PendingEvents = () => {
@@ -60,95 +58,86 @@ const PendingEvents = () => {
     }
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+      <p className="text-sm text-surface-400 font-medium">Loading requests...</p>
+    </div>
+  );
 
   return (
-    <div className="animate-fade-in py-4 space-y-6">
+    <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">Pending Review Queue</h1>
-          <p className="text-surface-500 mt-1">Review club proposals and provide faculty recommendations.</p>
+          <h1 className="text-xl font-extrabold text-surface-900 tracking-tight">Review Queue</h1>
+          <p className="text-surface-400 text-sm mt-0.5">Review club proposals and provide recommendations.</p>
         </div>
-        <div className="bg-amber-100 text-amber-800 px-4 py-2 rounded-xl font-bold text-sm shrink-0 border border-amber-200">
-          {events.length} Action{events.length !== 1 ? 's' : ''} Needed
-        </div>
+        {events.length > 0 && (
+          <div className="badge-pending px-3 py-1.5 text-xs shrink-0">
+            {events.length} pending review{events.length !== 1 ? 's' : ''}
+          </div>
+        )}
       </div>
 
       {events.length === 0 ? (
-        <div className="card text-center py-20">
-          <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10" />
+        <div className="card">
+          <div className="empty-state">
+            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mb-4">
+              <CheckCircle className="w-8 h-8" />
+            </div>
+            <p className="empty-state-title">Queue is clear</p>
+            <p className="empty-state-desc">All student event proposals have been processed.</p>
           </div>
-          <h3 className="text-xl font-bold text-surface-900">Queue is Clear</h3>
-          <p className="text-surface-500 mt-2">All student event proposals have been processed.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="space-y-4">
           {events.map((event) => (
-            <div key={event.id} className="card p-0 overflow-hidden border-l-4 border-l-amber-500 flex flex-col xl:flex-row">
-              <div className="flex-1 p-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="bg-surface-100 text-surface-700 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded">
-                    {event.category}
-                  </span>
-                  <span className="text-xs font-bold text-brand-600 uppercase tracking-widest">
+            <div key={event.id} className="card p-0 overflow-hidden flex flex-col xl:flex-row hover:shadow-card-hover transition-all duration-300">
+              <div className="flex-1 p-5 lg:p-6 space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="badge-info">{event.category}</span>
+                  <span className="text-xs font-semibold text-brand-600">
                     {event.users?.club_name}
                   </span>
                 </div>
                 
-                <h3 className="text-2xl font-black text-surface-900 mb-4">{event.title}</h3>
+                <h3 className="text-lg font-extrabold text-surface-900 leading-tight">{event.title}</h3>
                 
-                <div className="bg-surface-50 rounded-xl p-5 mb-6 border border-surface-200">
-                  <p className="text-surface-700 text-sm leading-relaxed">
-                    <span className="font-bold block mb-1 uppercase text-[10px] text-surface-400">Proposal Abstract:</span>
-                    {event.description}
-                  </p>
+                <div className="bg-surface-50 rounded-xl p-4 border border-surface-100">
+                  <p className="text-[10px] font-bold text-surface-400 uppercase tracking-wider mb-1.5">Proposal Abstract</p>
+                  <p className="text-sm text-surface-600 leading-relaxed line-clamp-3">{event.description}</p>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="flex items-center text-surface-700 gap-3">
-                    <Clock className="w-5 h-5 text-brand-600 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-surface-400 uppercase">Event Date</p>
-                      <span className="text-sm font-bold">{new Date(event.event_date).toLocaleDateString()}</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { icon: Clock, label: 'Date', value: new Date(event.event_date).toLocaleDateString() },
+                    { icon: MapPin, label: 'Venue', value: event.venue },
+                    { icon: DollarSign, label: 'Budget', value: `$${event.budget}` },
+                    { icon: Users, label: 'Expected', value: `${event.expected_participants}` },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-2.5">
+                      <item.icon className="w-4 h-4 text-surface-400 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold text-surface-400 uppercase">{item.label}</p>
+                        <span className="text-xs font-semibold text-surface-700 truncate block">{item.value}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center text-surface-700 gap-3">
-                    <MapPin className="w-5 h-5 text-brand-600 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-surface-400 uppercase">Venue</p>
-                      <span className="text-sm font-bold truncate">{event.venue}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-surface-700 gap-3">
-                    <DollarSign className="w-5 h-5 text-brand-600 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-surface-400 uppercase">Budget</p>
-                      <span className="text-sm font-bold">${event.budget}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center text-surface-700 gap-3">
-                    <Users className="w-5 h-5 text-brand-600 shrink-0" />
-                    <div>
-                      <p className="text-[10px] font-bold text-surface-400 uppercase">Expected</p>
-                      <span className="text-sm font-bold">{event.expected_participants} px</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-surface-50 border-t xl:border-t-0 xl:border-l border-surface-200 p-8 flex flex-col justify-center items-center gap-3 shrink-0 xl:w-72">
-                 <ShieldAlert className="w-8 h-8 text-amber-500 mb-2" />
-                 <p className="text-[10px] font-bold text-surface-400 uppercase tracking-widest text-center mb-4">Faculty Review</p>
+              <div className="bg-surface-50 border-t xl:border-t-0 xl:border-l border-surface-100 p-5 lg:p-6 flex flex-col justify-center items-center gap-3 shrink-0 xl:w-56">
+                <ShieldCheck className="w-7 h-7 text-brand-400 mb-1" />
+                <p className="text-[10px] font-bold text-surface-400 uppercase tracking-wider text-center mb-2">Faculty Review</p>
                 <button 
                   onClick={() => { setSelectedEvent(event); setActiveModal('approve'); }}
-                  className="btn-primary w-full bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center gap-2"
+                  className="btn-success w-full flex items-center justify-center gap-2 text-sm"
                 >
-                  <CheckCircle className="w-4 h-4" /> Recommended
+                  <CheckCircle className="w-4 h-4" /> Recommend
                 </button>
                 <button 
                   onClick={() => { setSelectedEvent(event); setActiveModal('reject'); }}
-                  className="btn-primary w-full bg-red-600 hover:bg-red-700 flex items-center justify-center gap-2"
+                  className="btn-danger w-full flex items-center justify-center gap-2 text-sm"
                 >
                   <XCircle className="w-4 h-4" /> Reject
                 </button>
@@ -161,28 +150,30 @@ const PendingEvents = () => {
       {/* Action Modal */}
       {activeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-surface-900/40 backdrop-blur-sm" onClick={() => setActiveModal(null)}></div>
-          <div className="relative bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl animate-slide-up">
-            <h2 className="text-2xl font-bold text-surface-900 mb-2 capitalize">{activeModal} Proposal</h2>
-            <p className="text-sm text-surface-500 mb-6">Reviewing: {selectedEvent?.title}</p>
+          <div className="absolute inset-0 bg-surface-900/50 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
+          <div className="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-elevated animate-scale-in">
+            <h2 className="text-lg font-extrabold text-surface-900 mb-1 capitalize">{activeModal} Proposal</h2>
+            <p className="text-sm text-surface-400 mb-5">Reviewing: {selectedEvent?.title}</p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-surface-700 mb-1">
-                  {activeModal === 'approve' ? 'Faculty Remarks (Optional)' : 'Rejection Reason (Required)'}
+                <label className="block text-[13px] font-semibold text-surface-700 mb-2">
+                  {activeModal === 'approve' ? 'Faculty Remarks (Optional)' : 'Rejection Reason'}
                 </label>
                 <textarea 
-                  className="input-field min-h-[120px]" 
+                  className="input-field min-h-[100px] resize-none" 
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   placeholder={activeModal === 'approve' ? 'Looks good, aligns with curriculum...' : 'Insufficient planning for safety...'}
                 ></textarea>
               </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setActiveModal(null)} className="btn-secondary flex-1">Cancel</button>
+              <div className="flex gap-3">
+                <button onClick={() => setActiveModal(null)} className="btn-secondary flex-1 text-sm">Cancel</button>
                 <button 
                   onClick={handleAction} 
                   disabled={actionLoading || (activeModal === 'reject' && !remarks)}
-                  className={`btn-primary flex-1 flex items-center justify-center gap-2 ${activeModal === 'reject' ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+                  className={`flex-1 text-sm flex items-center justify-center gap-2 ${
+                    activeModal === 'reject' ? 'btn-danger' : 'btn-success'
+                  }`}
                 >
                   {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm'}
                 </button>

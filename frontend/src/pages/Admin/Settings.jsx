@@ -23,10 +23,10 @@ const Settings = () => {
   const SidebarItem = ({ id, icon: Icon, label }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
         activeTab === id 
-          ? 'bg-brand-900 text-white shadow-lg shadow-brand-900/20' 
-          : 'text-surface-500 hover:bg-surface-100 hover:text-surface-900'
+          ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/20' 
+          : 'text-surface-500 hover:bg-surface-100 hover:text-surface-800'
       }`}
     >
       <Icon className="w-5 h-5" />
@@ -37,8 +37,8 @@ const Settings = () => {
   return (
     <div className="space-y-6 animate-fade-in pb-10">
       <div>
-        <h1 className="text-2xl font-bold text-surface-900">System Settings</h1>
-        <p className="text-surface-500 mt-1">Configure your personal preferences and administrative defaults.</p>
+        <h1 className="text-xl font-extrabold text-surface-900 tracking-tight">Settings</h1>
+        <p className="text-surface-400 text-sm mt-0.5">Configure your personal preferences and administrative defaults.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
@@ -53,7 +53,7 @@ const Settings = () => {
 
         {/* Content Area */}
         <div className="flex-1 max-w-3xl">
-          <div className="card p-8">
+          <div className="card">
             {activeTab === 'profile' && (
               <div className="space-y-6">
                 <h3 className="text-xl font-bold text-surface-900 border-b border-surface-100 pb-4 mb-6">Profile Information</h3>

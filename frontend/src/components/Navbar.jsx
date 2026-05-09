@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Calendar, Menu, X, User } from 'lucide-react';
+import { LogOut, Calendar, Menu, X, User, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const Navbar = () => {
@@ -56,8 +56,8 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-14">
           <div className="flex items-center">
             <Link to={getDashboardLink()} className="flex items-center gap-3 group">
-              <div className="bg-gradient-to-br from-brand-500 to-brand-700 p-2.5 rounded-xl shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300 group-hover:scale-105">
-                <Calendar className="h-5 w-5 text-white" />
+              <div className="bg-gradient-to-br from-brand-500 to-brand-700 p-2 rounded-xl shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300 group-hover:scale-105">
+                <Sparkles className="h-4.5 w-4.5 text-white" />
               </div>
               <span className="font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-surface-900 to-surface-600 tracking-tight">
                 CEAMS

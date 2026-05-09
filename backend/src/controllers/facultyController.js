@@ -56,6 +56,7 @@ export const approveEvent = async (req, res) => {
       .update({
         status: 'faculty_approved',
         faculty_remarks: remarks || null,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -90,6 +91,7 @@ export const rejectEvent = async (req, res) => {
       .update({
         status: 'faculty_rejected',
         rejection_reason: reason,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()

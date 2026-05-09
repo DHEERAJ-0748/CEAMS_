@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { User, Mail, Lock, Building, ArrowRight, Loader2, Users, Briefcase, ShieldCheck } from 'lucide-react';
+import { User, Mail, Lock, Sparkles, ArrowRight, Loader2, Users, Briefcase, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'club', // default
+    role: 'club',
     club_name: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, user } = useAuth();
@@ -40,33 +41,43 @@ const Register = () => {
     setLoading(false);
   };
 
+  const roleOptions = [
+    { value: 'club', label: 'Club Representative', icon: Users, desc: 'Submit and manage event proposals' },
+    { value: 'faculty', label: 'Faculty Member', icon: Briefcase, desc: 'Review and recommend proposals' },
+    { value: 'admin', label: 'Administrator', icon: ShieldCheck, desc: 'Final approval and oversight' },
+  ];
+
   return (
     <div className="min-h-screen flex w-full bg-surface-50">
-      
       {/* Left Side: Register Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 overflow-y-auto">
-        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-2xl shadow-card border border-surface-200">
-          
-          <div className="mb-8 text-center lg:text-left">
-            <div className="flex justify-center lg:hidden mb-6">
-               <Building className="w-12 h-12 text-brand-900" />
+        <div className="w-full max-w-[420px]">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center gap-2.5 mb-10 justify-center">
+            <div className="w-9 h-9 bg-brand-600 rounded-xl flex items-center justify-center">
+              <Sparkles className="w-4.5 h-4.5 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-surface-900 mb-2">Create an Account</h2>
-            <p className="text-surface-500">Join CEAMS and streamline your workflow.</p>
+            <span className="text-xl font-extrabold text-surface-900 tracking-tight">CEAMS</span>
+          </div>
+          
+          <div className="mb-8">
+            <h2 className="text-2xl font-extrabold text-surface-900 mb-1.5 tracking-tight">Create an account</h2>
+            <p className="text-surface-500 text-sm">Join CEAMS and streamline your workflow</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2">
+            <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-3 animate-slide-down">
+              <div className="w-1 h-full min-h-[20px] bg-red-400 rounded-full shrink-0" />
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-surface-700 mb-2">Full Name</label>
+              <label className="block text-[13px] font-semibold text-surface-700 mb-2">Full Name</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-surface-400">
-                  <User className="h-5 w-5" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                  <User className="h-[18px] w-[18px]" />
                 </div>
                 <input
                   type="text"
@@ -74,17 +85,17 @@ const Register = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="input-field pl-11"
+                  className="input-field pl-10"
                   placeholder="Jane Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-surface-700 mb-2">Email Address</label>
+              <label className="block text-[13px] font-semibold text-surface-700 mb-2">Email</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-surface-400">
-                  <Mail className="h-5 w-5" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                  <Mail className="h-[18px] w-[18px]" />
                 </div>
                 <input
                   type="email"
@@ -92,52 +103,65 @@ const Register = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-field pl-11"
+                  className="input-field pl-10"
                   placeholder="name@institution.edu"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-surface-700 mb-2">Password</label>
+              <label className="block text-[13px] font-semibold text-surface-700 mb-2">Password</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-surface-400">
-                  <Lock className="h-5 w-5" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                  <Lock className="h-[18px] w-[18px]" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   required
                   minLength="6"
                   value={formData.password}
                   onChange={handleChange}
-                  className="input-field pl-11"
-                  placeholder="Min. 8 characters"
+                  className="input-field pl-10 pr-11"
+                  placeholder="Min. 6 characters"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-surface-400 hover:text-surface-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+                </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-surface-700 mb-2">Select Your Role</label>
-              <select
-                name="role"
-                required
-                value={formData.role}
-                onChange={handleChange}
-                className="input-field bg-white cursor-pointer"
-              >
-                <option value="club">Club Representative</option>
-                <option value="faculty">Faculty Member</option>
-                <option value="admin">Administrator</option>
-              </select>
+              <label className="block text-[13px] font-semibold text-surface-700 mb-2">Role</label>
+              <div className="grid grid-cols-3 gap-2">
+                {roleOptions.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, role: opt.value })}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all duration-200 ${
+                      formData.role === opt.value
+                        ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-sm'
+                        : 'border-surface-100 text-surface-500 hover:border-surface-200 hover:bg-surface-50'
+                    }`}
+                  >
+                    <opt.icon className="w-5 h-5" />
+                    <span className="text-[11px] font-semibold leading-tight">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {formData.role === 'club' && (
               <div className="animate-fade-in">
-                <label className="block text-sm font-semibold text-surface-700 mb-2">Club Name</label>
+                <label className="block text-[13px] font-semibold text-surface-700 mb-2">Club Name</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-surface-400">
-                    <Users className="h-5 w-5" />
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                    <Users className="h-[18px] w-[18px]" />
                   </div>
                   <input
                     type="text"
@@ -145,7 +169,7 @@ const Register = () => {
                     required
                     value={formData.club_name}
                     onChange={handleChange}
-                    className="input-field pl-11"
+                    className="input-field pl-10"
                     placeholder="E.g. Computer Science Society"
                   />
                 </div>
@@ -155,73 +179,69 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3 mt-6 flex justify-center items-center gap-2 text-base shadow-lg shadow-brand-900/20"
+              className="btn-primary w-full py-3 mt-3 flex justify-center items-center gap-2 text-sm"
             >
               {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4.5 h-4.5 animate-spin" />
               ) : (
                 <>
-                  Create Account <ArrowRight className="w-5 h-5" />
+                  Create Account <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-surface-600">
+          <p className="mt-8 text-center text-sm text-surface-500">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-800 transition-colors">
+            <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700 transition-colors">
               Sign in
             </Link>
           </p>
         </div>
       </div>
 
-      {/* Right Side: Information / Features (Hidden on Mobile) */}
+      {/* Right Side: Information */}
       <div className="hidden lg:flex w-1/2 bg-surface-900 text-white flex-col justify-between p-12 relative overflow-hidden">
-        {/* Abstract Background Shapes */}
-        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none opacity-20">
-           <div className="absolute top-[20%] left-[10%] w-96 h-96 bg-brand-400 rounded-full blur-[100px] mix-blend-screen"></div>
-           <div className="absolute bottom-[10%] right-[10%] w-80 h-80 bg-surface-400 rounded-full blur-[80px] mix-blend-screen"></div>
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-brand-500 rounded-full blur-[120px] opacity-15" />
+          <div className="absolute bottom-[10%] right-[10%] w-[400px] h-[400px] bg-surface-500 rounded-full blur-[100px] opacity-10" />
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+            backgroundSize: '32px 32px'
+          }} />
         </div>
 
-        <div className="relative z-10 flex items-center justify-end gap-3">
-          <span className="text-3xl font-bold tracking-wider">CEAMS</span>
-          <Building className="w-10 h-10 text-brand-300" />
+        <div className="relative z-10 flex items-center justify-end gap-2.5">
+          <span className="text-2xl font-extrabold tracking-tight">CEAMS</span>
+          <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
         </div>
 
         <div className="relative z-10 max-w-md self-end text-right">
-          <h2 className="text-4xl font-bold leading-tight mb-8">
-            Digitize your event workflows.
+          <h2 className="text-3xl xl:text-4xl font-extrabold leading-[1.1] mb-10 tracking-tight">
+            Digitize your<br />
+            <span className="text-brand-300">event workflows.</span>
           </h2>
           
-          <div className="space-y-6 mt-10">
-             <div className="flex items-center justify-end gap-4 bg-surface-800/50 p-4 rounded-xl border border-surface-700/50 backdrop-blur-sm">
+          <div className="space-y-3 mt-8">
+            {roleOptions.map(opt => (
+              <div key={opt.value} className="flex items-center justify-end gap-4 bg-white/5 p-4 rounded-2xl border border-white/[0.06] backdrop-blur-sm">
                 <div className="text-right">
-                   <h4 className="text-white font-medium">Clubs & Societies</h4>
-                   <p className="text-surface-400 text-sm">Submit and track comprehensive proposals instantly.</p>
+                  <h4 className="text-white font-semibold text-sm">{opt.label}</h4>
+                  <p className="text-white/40 text-xs mt-0.5">{opt.desc}</p>
                 </div>
-                <div className="bg-brand-900/50 p-3 rounded-lg"><Users className="w-6 h-6 text-brand-300" /></div>
-             </div>
-
-             <div className="flex items-center justify-end gap-4 bg-surface-800/50 p-4 rounded-xl border border-surface-700/50 backdrop-blur-sm">
-                <div className="text-right">
-                   <h4 className="text-white font-medium">Faculty Advisors</h4>
-                   <p className="text-surface-400 text-sm">Review, request changes, and approve seamlessly.</p>
+                <div className="bg-white/10 p-2.5 rounded-xl shrink-0">
+                  <opt.icon className="w-5 h-5 text-brand-300" />
                 </div>
-                <div className="bg-surface-700/50 p-3 rounded-lg"><Briefcase className="w-6 h-6 text-surface-300" /></div>
-             </div>
-
-             <div className="flex items-center justify-end gap-4 bg-surface-800/50 p-4 rounded-xl border border-surface-700/50 backdrop-blur-sm">
-                <div className="text-right">
-                   <h4 className="text-white font-medium">Administration</h4>
-                   <p className="text-surface-400 text-sm">Final authorizations and system-wide visibility.</p>
-                </div>
-                <div className="bg-brand-800/50 p-3 rounded-lg"><ShieldCheck className="w-6 h-6 text-brand-200" /></div>
-             </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
 
+        <div className="relative z-10" />
+      </div>
     </div>
   );
 };

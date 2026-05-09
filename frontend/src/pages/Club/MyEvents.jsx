@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, MapPin, Users, DollarSign, Clock, Tag, Plus, Search } from 'lucide-react';
+import { Calendar, MapPin, Users, DollarSign, Clock, Plus, Loader2, Inbox } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const MyEvents = () => {
@@ -10,7 +10,7 @@ const MyEvents = () => {
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
 
-  const filters = ['All', 'Draft', 'Pending', 'Approved', 'Rejected'];
+  const filters = ['All', 'Pending', 'Approved', 'Rejected'];
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -33,10 +33,9 @@ const MyEvents = () => {
     } else {
       setFilteredEvents(events.filter(event => {
         const status = event.status.toLowerCase();
-        if (activeFilter === 'Draft') return status === 'submitted';
-        if (activeFilter === 'Pending') return status.includes('pending');
-        if (activeFilter === 'Approved') return status === 'approved';
-        if (activeFilter === 'Rejected') return status.includes('rejected');
+        if (activeFilter === 'Pending') return status.includes('pending') || status === 'faculty_approved';
+        if (activeFilter === 'Approved') return status === 'approved' || status === 'admin_approved';
+        if (activeFilter === 'Rejected') return status === 'rejected' || status.includes('rejected');
         return true;
       }));
     }
@@ -44,45 +43,42 @@ const MyEvents = () => {
 
   const getStatusConfig = (status) => {
     const s = status.toLowerCase();
-    if (s === 'approved') return { color: 'bg-emerald-100 text-emerald-700 border-emerald-200', text: 'Approved' };
-    if (s.includes('pending')) return { color: 'bg-amber-100 text-amber-700 border-amber-200', text: 'Pending' };
-    if (s.includes('rejected')) return { color: 'bg-red-100 text-red-700 border-red-200', text: 'Rejected' };
-    return { color: 'bg-surface-200 text-surface-600 border-surface-300', text: 'Draft' };
+    if (s === 'approved' || s === 'admin_approved') return { className: 'badge-approved', text: 'Approved' };
+    if (s.includes('pending') || s === 'faculty_approved') return { className: 'badge-pending', text: s === 'faculty_approved' ? 'Faculty Approved' : 'Pending' };
+    if (s === 'rejected' || s.includes('rejected')) return { className: 'badge-rejected', text: 'Rejected' };
+    return { className: 'badge-info', text: status.replace(/_/g, ' ') };
   };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
+      <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
+      <p className="text-sm text-surface-400 font-medium">Loading events...</p>
+    </div>
+  );
 
   return (
-    <div className="animate-fade-in py-4 space-y-6">
-      
+    <div className="animate-fade-in space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">My Proposals</h1>
-          <p className="text-surface-500 mt-1">Manage and track your submitted events.</p>
+          <h1 className="text-xl font-extrabold text-surface-900 tracking-tight">My Proposals</h1>
+          <p className="text-surface-400 text-sm mt-0.5">{events.length} total event{events.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link to="/club/create-event" className="btn-primary inline-flex items-center gap-2 w-fit shrink-0">
+        <Link to="/club/create-event" className="btn-primary inline-flex items-center gap-2 w-fit shrink-0 text-sm">
           <Plus className="w-4 h-4" /> New Proposal
         </Link>
       </div>
 
-      {/* "Best Conducted Event" Section Placeholder - Keeping it as requested if it existed */}
-      {/* (Adding a placeholder to fulfill the requirement "Keep it EXACTLY as it is") */}
-      <div className="bg-gradient-to-r from-brand-600 to-brand-800 rounded-xl p-6 text-white shadow-lg">
-        <h3 className="text-lg font-bold mb-1">Best Conducted Event</h3>
-        <p className="text-brand-100 text-sm">Annual Tech Symposium 2025 - Awarded for excellence in management.</p>
-      </div>
-
-      {/* Filter Section */}
-      <div className="bg-white p-2 rounded-2xl shadow-sm border border-surface-200 flex flex-wrap gap-2 w-fit">
+      {/* Filter Tabs */}
+      <div className="flex gap-1 p-1 bg-surface-100 rounded-xl w-fit">
         {filters.map((filter) => (
           <button
             key={filter}
             onClick={() => setActiveFilter(filter)}
-            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+            className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
               activeFilter === filter
-                ? 'bg-brand-900 text-white shadow-md'
-                : 'text-surface-600 hover:bg-surface-100'
+                ? 'bg-white text-surface-900 shadow-sm'
+                : 'text-surface-500 hover:text-surface-700'
             }`}
           >
             {filter}
@@ -90,71 +86,69 @@ const MyEvents = () => {
         ))}
       </div>
 
-      {error && <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">{error}</div>}
+      {error && (
+        <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm">
+          {error}
+        </div>
+      )}
 
       {/* Event Cards Grid */}
       {filteredEvents.length === 0 ? (
-        <div className="card text-center py-16">
-          <Calendar className="w-16 h-16 text-surface-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-surface-900">No events found</h3>
-          <p className="text-surface-500 mt-1 mb-6">No events match the selected filter.</p>
+        <div className="empty-state">
+          <Inbox className="empty-state-icon" />
+          <p className="empty-state-title">No events found</p>
+          <p className="empty-state-desc">No events match the selected filter.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredEvents.map((event) => {
             const status = getStatusConfig(event.status);
             return (
-              <div key={event.id} className="card-hover group flex flex-col p-6 h-full">
+              <div key={event.id} className="card-hover group flex flex-col h-full">
                 {/* Title & Status */}
-                <div className="flex justify-between items-start mb-4 gap-2">
-                  <h3 className="font-bold text-surface-900 text-lg leading-tight group-hover:text-brand-700 transition-colors">
+                <div className="flex justify-between items-start mb-3 gap-2">
+                  <h3 className="font-bold text-surface-900 text-sm leading-snug group-hover:text-brand-600 transition-colors">
                     {event.title}
                   </h3>
-                  <span className={`shrink-0 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${status.color}`}>
+                  <span className={`shrink-0 ${status.className}`}>
                     {status.text}
                   </span>
                 </div>
 
-                {/* Description */}
-                <p className="text-surface-500 text-sm mb-6 line-clamp-2 flex-grow">
+                <p className="text-surface-400 text-xs mb-4 line-clamp-2 flex-grow">
                   {event.description}
                 </p>
 
-                {/* Details Row 1 */}
-                <div className="grid grid-cols-2 gap-4 border-t border-surface-100 pt-4 mb-4">
-                  <div className="flex items-center gap-2 text-surface-600">
-                    <Clock className="w-4 h-4 text-brand-500" />
-                    <span className="text-xs font-medium">{new Date(event.event_date).toLocaleDateString()}</span>
+                <div className="grid grid-cols-2 gap-2.5 border-t border-surface-100 pt-3">
+                  <div className="flex items-center gap-1.5 text-surface-500">
+                    <Clock className="w-3.5 h-3.5 text-surface-400 shrink-0" />
+                    <span className="text-[11px] font-medium">{new Date(event.event_date).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-surface-600">
-                    <MapPin className="w-4 h-4 text-brand-500" />
-                    <span className="text-xs font-medium truncate" title={event.venue}>{event.venue}</span>
+                  <div className="flex items-center gap-1.5 text-surface-500">
+                    <MapPin className="w-3.5 h-3.5 text-surface-400 shrink-0" />
+                    <span className="text-[11px] font-medium truncate">{event.venue}</span>
                   </div>
-                </div>
-
-                {/* Details Row 2 */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2 text-surface-600">
-                    <Users className="w-4 h-4 text-brand-500" />
-                    <span className="text-xs font-medium">{event.expected_participants} px</span>
+                  <div className="flex items-center gap-1.5 text-surface-500">
+                    <Users className="w-3.5 h-3.5 text-surface-400 shrink-0" />
+                    <span className="text-[11px] font-medium">{event.expected_participants}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-surface-600">
-                    <DollarSign className="w-4 h-4 text-brand-500" />
-                    <span className="text-xs font-bold text-surface-900">${event.budget}</span>
+                  <div className="flex items-center gap-1.5 text-surface-500">
+                    <DollarSign className="w-3.5 h-3.5 text-surface-400 shrink-0" />
+                    <span className="text-[11px] font-semibold text-surface-700">${event.budget}</span>
                   </div>
                 </div>
 
-                {/* Remarks/Reasons if any */}
-                {(event.rejection_reason || event.faculty_remarks || event.admin_remarks) && (
-                  <div className="mt-4 pt-4 border-t border-dashed border-surface-200 space-y-1">
+                {/* Remarks */}
+                {(event.rejection_reason || event.faculty_remarks) && (
+                  <div className="mt-3 pt-3 border-t border-dashed border-surface-100 space-y-1">
                     {event.rejection_reason && (
-                      <p className="text-[10px] text-red-600 italic">
+                      <p className="text-[10px] text-red-500">
                         <span className="font-bold">Reason:</span> {event.rejection_reason}
                       </p>
                     )}
                     {event.faculty_remarks && (
-                      <p className="text-[10px] text-surface-400 italic">
-                        <span className="font-bold">Faculty Note:</span> {event.faculty_remarks}
+                      <p className="text-[10px] text-surface-400">
+                        <span className="font-bold">Faculty:</span> {event.faculty_remarks}
                       </p>
                     )}
                   </div>

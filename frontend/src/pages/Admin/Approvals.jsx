@@ -46,7 +46,7 @@ const Approvals = () => {
       stages[1].icon = CheckCircle;
       stages[1].color = 'text-emerald-500';
       stages[2].status = 'in-progress';
-    } else if (status === 'approved') {
+    } else if (status === 'approved' || status === 'admin_approved') {
       stages[1].status = 'completed';
       stages[1].color = 'text-emerald-500';
       stages[1].icon = CheckCircle;
