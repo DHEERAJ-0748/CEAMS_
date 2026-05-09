@@ -8,6 +8,7 @@ export const getAllEvents = async (req, res) => {
     const { data: events, error } = await supabase
       .from('events')
       .select('*, users(club_name)')
+      .eq('status', 'faculty_approved')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -32,7 +33,7 @@ export const approveEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'approved',
+        status: 'admin_approved',
         admin_remarks: remarks || null,
       })
       .eq('id', id)
@@ -66,7 +67,7 @@ export const rejectEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'rejected_by_admin',
+        status: 'admin_rejected',
         rejection_reason: reason,
       })
       .eq('id', id)

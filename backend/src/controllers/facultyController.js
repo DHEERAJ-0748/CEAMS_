@@ -54,7 +54,7 @@ export const approveEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'admin_pending',
+        status: 'faculty_approved',
         faculty_remarks: remarks || null,
       })
       .eq('id', id)
@@ -88,7 +88,7 @@ export const rejectEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'rejected_by_faculty',
+        status: 'faculty_rejected',
         rejection_reason: reason,
       })
       .eq('id', id)
