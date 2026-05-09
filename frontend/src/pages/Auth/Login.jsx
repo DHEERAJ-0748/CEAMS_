@@ -17,6 +17,7 @@ const Login = () => {
       if (user.role === 'club') navigate('/club/dashboard');
       if (user.role === 'faculty') navigate('/faculty/dashboard');
       if (user.role === 'admin') navigate('/admin/dashboard');
+      if (user.role === 'principal') navigate('/principal/dashboard');
     }
   }, [user, navigate]);
 

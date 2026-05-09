@@ -3,12 +3,13 @@ import axios from 'axios';
 import { 
   CalendarCheck, 
   Clock, 
-  MapPin, 
-  Users, 
+  DollarSign, 
+  TrendingUp, 
   ArrowRight, 
   Loader2,
-  TrendingUp,
-  Sparkles
+  Sparkles,
+  MapPin,
+  CheckCircle2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -20,11 +21,11 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [analyticsRes, eventsRes] = await Promise.all([
-          axios.get('/api/analytics'),
-          axios.get('/api/admin/events')
+        const [statsRes, eventsRes] = await Promise.all([
+          axios.get('/api/principal/stats'),
+          axios.get('/api/principal/events')
         ]);
-        setData(analyticsRes.data.stats);
+        setData(statsRes.data);
         setRecentEvents(eventsRes.data.slice(0, 5));
       } catch (err) {
         console.error('Failed to fetch dashboard data', err);
@@ -36,16 +37,16 @@ const Dashboard = () => {
   }, []);
 
   const stats = [
-    { title: 'Total Events', value: data?.totalEvents || 0, icon: CalendarCheck, color: 'from-brand-500 to-brand-600', bg: 'bg-brand-50', text: 'text-brand-600' },
-    { title: 'Pending Approvals', value: data?.pendingApprovals || 0, icon: Clock, color: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', text: 'text-amber-600' },
-    { title: 'Venues Booked', value: data?.bookedVenuesToday || 0, icon: MapPin, color: 'from-emerald-500 to-teal-500', bg: 'bg-emerald-50', text: 'text-emerald-600' },
-    { title: 'Active Clubs', value: data?.activeClubs || 0, icon: Users, color: 'from-blue-500 to-indigo-500', bg: 'bg-blue-50', text: 'text-blue-600' },
+    { title: 'Total Events', value: data?.totalEvents || 0, icon: CalendarCheck, bg: 'bg-brand-50', text: 'text-brand-600' },
+    { title: 'Pending Final Approvals', value: data?.pendingApprovals || 0, icon: Clock, bg: 'bg-amber-50', text: 'text-amber-600' },
+    { title: 'Total Budget Approved', value: `$${data?.totalBudgetApproved?.toLocaleString() || 0}`, icon: DollarSign, bg: 'bg-emerald-50', text: 'text-emerald-600' },
+    { title: 'Upcoming Major Events', value: data?.upcomingMajorEvents || 0, icon: Sparkles, bg: 'bg-purple-50', text: 'text-purple-600' },
   ];
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[60vh] gap-3">
       <Loader2 className="w-8 h-8 animate-spin text-brand-500" />
-      <p className="text-sm text-surface-400 font-medium">Loading dashboard...</p>
+      <p className="text-sm text-surface-400 font-medium">Loading principal insights...</p>
     </div>
   );
 
@@ -53,10 +54,8 @@ const Dashboard = () => {
     <div className="space-y-8 animate-fade-in">
       {/* Welcome Banner */}
       <div className="bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 text-white rounded-2xl p-8 lg:p-10 relative overflow-hidden">
-        {/* Decorative elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-500 rounded-full blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-1/4 w-60 h-60 bg-brand-400 rounded-full blur-[80px] opacity-10 translate-y-1/2" />
           <div className="absolute inset-0 opacity-[0.03]" style={{
             backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
             backgroundSize: '24px 24px'
@@ -65,16 +64,16 @@ const Dashboard = () => {
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 bg-white/10 text-brand-200 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 border border-white/10">
-              <Sparkles className="w-3.5 h-3.5" />
-              Admin Control Center
+              <TrendingUp className="w-3.5 h-3.5" />
+              Institutional Overview
             </div>
-            <h1 className="text-3xl font-extrabold mb-2 tracking-tight">Welcome back</h1>
+            <h1 className="text-3xl font-extrabold mb-2 tracking-tight text-white">Welcome back, Principal</h1>
             <p className="text-brand-200/80 max-w-lg text-sm leading-relaxed">
-              Monitor institutional event flow, manage facilities, and oversee club activities from your central dashboard.
+              Review institutional event flow, manage final authorizations, and oversee budget distribution across all campus activities.
             </p>
           </div>
-          <Link to="/admin/events" className="btn-primary bg-white text-brand-900 hover:bg-brand-50 border-none font-semibold px-6 shadow-elevated shrink-0">
-            Review Requests
+          <Link to="/principal/final-approvals" className="btn-primary bg-white text-brand-900 hover:bg-brand-50 border-none font-semibold px-6 shadow-elevated shrink-0">
+            Authorizations
           </Link>
         </div>
       </div>
@@ -88,65 +87,60 @@ const Dashboard = () => {
                 <stat.icon className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-[12px] font-medium text-surface-400 uppercase tracking-wider">{stat.title}</p>
-                <h3 className="text-2xl font-extrabold text-surface-900 tracking-tight">{stat.value}</h3>
+                <p className="text-[11px] font-bold text-surface-400 uppercase tracking-wider">{stat.title}</p>
+                <h3 className="text-xl font-extrabold text-surface-900 tracking-tight">{stat.value}</h3>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Two Column Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Recent Event Requests */}
+        {/* Recently Approved */}
         <div className="card">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-sm font-bold text-surface-900">Recent Requests</h3>
-            <Link to="/admin/events" className="text-brand-600 text-xs font-semibold hover:text-brand-700 flex items-center gap-1 transition-colors">
-              View all <ArrowRight className="w-3.5 h-3.5" />
+            <h3 className="text-sm font-bold text-surface-900">Recently Authorized</h3>
+            <Link to="/principal/final-approvals" className="text-brand-600 text-xs font-semibold hover:text-brand-700 flex items-center gap-1 transition-colors">
+              View catalog <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="space-y-2">
-            {recentEvents.length > 0 ? (
-              recentEvents.map((event) => (
+          <div className="space-y-3">
+            {recentEvents.filter(e => e.status === 'principal_approved').length > 0 ? (
+              recentEvents.filter(e => e.status === 'principal_approved').map((event) => (
                 <div key={event.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-surface-50 transition-colors group">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center text-brand-600 font-bold text-sm shrink-0">
-                      {event.users?.club_name?.charAt(0) || 'E'}
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0">
+                       <CheckCircle2 className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
                       <p className="font-semibold text-surface-800 text-[13px] truncate">{event.title}</p>
                       <p className="text-[11px] text-surface-400 truncate">{event.users?.club_name}</p>
                     </div>
                   </div>
-                  <span className={`badge shrink-0 ml-3 ${
-                    event.status === 'faculty_approved' ? 'badge-pending' : 
-                    event.status === 'principal_pending' ? 'badge-info' :
-                    event.status === 'principal_approved' || event.status === 'approved' ? 'badge-approved' : 'badge-rejected'
-                  }`}>
-                    {event.status.replace(/_/g, ' ')}
-                  </span>
+                  <div className="text-right shrink-0">
+                     <p className="text-[11px] font-bold text-surface-900">${event.budget}</p>
+                     <p className="text-[10px] text-surface-400">{new Date(event.event_date).toLocaleDateString()}</p>
+                  </div>
                 </div>
               ))
             ) : (
-              <div className="empty-state py-12">
-                <CalendarCheck className="empty-state-icon" />
-                <p className="empty-state-title">No requests</p>
-                <p className="empty-state-desc">No event requests found at this time.</p>
+              <div className="py-10 text-center text-surface-400">
+                 <Clock className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                 <p className="text-sm">No recently authorized events.</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Upcoming Events */}
+        {/* Upcoming Major Events */}
         <div className="card">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-sm font-bold text-surface-900">Upcoming Events</h3>
-            <Link to="/admin/calendar" className="text-brand-600 text-xs font-semibold hover:text-brand-700 flex items-center gap-1 transition-colors">
-              Calendar <ArrowRight className="w-3.5 h-3.5" />
+            <Link to="/principal/calendar" className="text-brand-600 text-xs font-semibold hover:text-brand-700 flex items-center gap-1 transition-colors">
+              Academic Calendar <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {recentEvents.filter(e => e.status === 'principal_approved' || e.status === 'approved').slice(0, 5).map((event) => (
               <div key={event.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-50 transition-colors">
                 <div className="bg-brand-50 p-2 rounded-xl text-brand-600 flex flex-col items-center justify-center min-w-[48px]">
@@ -163,10 +157,9 @@ const Dashboard = () => {
               </div>
             ))}
             {recentEvents.filter(e => e.status === 'principal_approved' || e.status === 'approved').length === 0 && (
-              <div className="empty-state py-12">
-                <CalendarCheck className="empty-state-icon" />
-                <p className="empty-state-title">No upcoming events</p>
-                <p className="empty-state-desc">Approved events will appear here.</p>
+              <div className="py-10 text-center text-surface-400">
+                <CalendarCheck className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">No scheduled events found.</p>
               </div>
             )}
           </div>

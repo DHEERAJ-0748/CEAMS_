@@ -9,7 +9,9 @@ const Register = () => {
     email: '',
     password: '',
     role: 'club',
-    club_name: ''
+    club_name: '',
+    institution_id: '',
+    department: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -22,6 +24,7 @@ const Register = () => {
       if (user.role === 'club') navigate('/club/dashboard');
       if (user.role === 'faculty') navigate('/faculty/dashboard');
       if (user.role === 'admin') navigate('/admin/dashboard');
+      if (user.role === 'principal') navigate('/principal/dashboard');
     }
   }, [user, navigate]);
 
@@ -42,9 +45,10 @@ const Register = () => {
   };
 
   const roleOptions = [
-    { value: 'club', label: 'Club Representative', icon: Users, desc: 'Submit and manage event proposals' },
-    { value: 'faculty', label: 'Faculty Member', icon: Briefcase, desc: 'Review and recommend proposals' },
-    { value: 'admin', label: 'Administrator', icon: ShieldCheck, desc: 'Final approval and oversight' },
+    { value: 'club', label: 'Club Rep', icon: Users, desc: 'Submit and manage event proposals' },
+    { value: 'faculty', label: 'Faculty', icon: Briefcase, desc: 'Review and recommend proposals' },
+    { value: 'admin', label: 'Admin', icon: ShieldCheck, desc: 'Institutional oversight' },
+    { value: 'principal', label: 'Principal', icon: Sparkles, desc: 'Final authorizations' },
   ];
 
   return (
@@ -137,7 +141,7 @@ const Register = () => {
 
             <div>
               <label className="block text-[13px] font-semibold text-surface-700 mb-2">Role</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {roleOptions.map(opt => (
                   <button
                     key={opt.value}
@@ -172,6 +176,44 @@ const Register = () => {
                     className="input-field pl-10"
                     placeholder="E.g. Computer Science Society"
                   />
+                </div>
+              </div>
+            )}
+
+            {formData.role === 'principal' && (
+              <div className="space-y-4 animate-fade-in">
+                <div>
+                  <label className="block text-[13px] font-semibold text-surface-700 mb-2">Institution ID / Employee ID</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                      <ShieldCheck className="h-[18px] w-[18px]" />
+                    </div>
+                    <input
+                      type="text"
+                      name="institution_id"
+                      required
+                      value={formData.institution_id}
+                      onChange={handleChange}
+                      className="input-field pl-10"
+                      placeholder="E.g. EMP12345"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[13px] font-semibold text-surface-700 mb-2">Department (Optional)</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-surface-400">
+                      <Briefcase className="h-[18px] w-[18px]" />
+                    </div>
+                    <input
+                      type="text"
+                      name="department"
+                      value={formData.department}
+                      onChange={handleChange}
+                      className="input-field pl-10"
+                      placeholder="E.g. Computer Science"
+                    />
+                  </div>
                 </div>
               </div>
             )}

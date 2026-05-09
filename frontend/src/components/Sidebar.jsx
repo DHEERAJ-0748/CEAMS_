@@ -113,6 +113,23 @@ const Sidebar = () => {
             <NavItem to="/admin/settings" icon={Settings} label="Settings" />
           </>
         )}
+        
+        {user.role === 'principal' && (
+          <>
+            <SectionLabel>Overview</SectionLabel>
+            <NavItem to="/principal/dashboard" icon={LayoutDashboard} label="Dashboard" />
+            <SectionLabel>Review</SectionLabel>
+            <NavItem to="/principal/final-approvals" icon={CheckSquare} label="Final Approvals" />
+            <NavItem to="/principal/major-events" icon={Sparkles} label="Major Events" />
+            <NavItem to="/principal/budget" icon={Activity} label="Budget Oversight" />
+            <SectionLabel>Academic</SectionLabel>
+            <NavItem to="/principal/calendar" icon={CalendarDays} label="Academic Calendar" />
+            <NavItem to="/principal/analytics" icon={BarChart3} label="Analytics" />
+            <SectionLabel>Activity</SectionLabel>
+            <NavItem to="/principal/notifications" icon={Bell} label="Notifications" />
+            <NavItem to="/principal/settings" icon={Settings} label="Settings" />
+          </>
+        )}
       </div>
 
       {/* User Area */}

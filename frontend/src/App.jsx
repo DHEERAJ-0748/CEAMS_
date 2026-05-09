@@ -34,12 +34,23 @@ import AdminNotifications from './pages/Admin/Notifications';
 import AdminAnalytics from './pages/Admin/Analytics';
 import AdminSettings from './pages/Admin/Settings';
 
+// Principal Pages
+import PrincipalDashboard from './pages/Principal/Dashboard';
+import FinalApprovals from './pages/Principal/FinalApprovals';
+import MajorEvents from './pages/Principal/MajorEvents';
+import BudgetOversight from './pages/Principal/BudgetOversight';
+import PrincipalCalendar from './pages/Principal/Calendar';
+import PrincipalAnalytics from './pages/Principal/Analytics';
+import PrincipalNotifications from './pages/Admin/Notifications'; // Reusing notification component
+import PrincipalSettings from './pages/Admin/Settings'; // Reusing settings component
+
 const RootRedirect = () => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'club') return <Navigate to="/club/dashboard" replace />;
   if (user.role === 'faculty') return <Navigate to="/faculty/dashboard" replace />;
   if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+  if (user.role === 'principal') return <Navigate to="/principal/dashboard" replace />;
   return <Navigate to="/login" replace />;
 };
 
@@ -101,6 +112,24 @@ function App() {
                   <Route path="notifications" element={<AdminNotifications />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="settings" element={<AdminSettings />} />
+                </Routes>
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+
+          {/* Principal Routes (With Sidebar) */}
+          <Route path="/principal/*" element={
+            <ProtectedRoute allowedRoles={['principal']}>
+              <DashboardLayout>
+                <Routes>
+                  <Route path="dashboard" element={<PrincipalDashboard />} />
+                  <Route path="final-approvals" element={<FinalApprovals />} />
+                  <Route path="major-events" element={<MajorEvents />} />
+                  <Route path="budget" element={<BudgetOversight />} />
+                  <Route path="calendar" element={<PrincipalCalendar />} />
+                  <Route path="analytics" element={<PrincipalAnalytics />} />
+                  <Route path="notifications" element={<PrincipalNotifications />} />
+                  <Route path="settings" element={<PrincipalSettings />} />
                 </Routes>
               </DashboardLayout>
             </ProtectedRoute>

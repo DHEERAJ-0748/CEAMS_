@@ -39,7 +39,8 @@ const Dashboard = () => {
     const stages = [
       { name: 'Submission', status: 'completed', icon: CheckCircle, color: 'text-emerald-500' },
       { name: 'Faculty Review', status: 'pending', icon: Clock, color: 'text-amber-500' },
-      { name: 'Admin Approval', status: 'pending', icon: Clock, color: 'text-amber-500' }
+      { name: 'Admin Review', status: 'pending', icon: Clock, color: 'text-amber-500' },
+      { name: 'Principal Auth', status: 'pending', icon: Clock, color: 'text-amber-500' }
     ];
 
     if (s === 'faculty_pending') {
@@ -49,13 +50,24 @@ const Dashboard = () => {
       stages[1].icon = CheckCircle;
       stages[1].color = 'text-emerald-500';
       stages[2].status = 'in-progress';
-    } else if (s === 'approved' || s === 'admin_approved') {
+    } else if (s === 'principal_pending') {
+      stages[1].status = 'completed';
+      stages[1].icon = CheckCircle;
+      stages[1].color = 'text-emerald-500';
+      stages[2].status = 'completed';
+      stages[2].icon = CheckCircle;
+      stages[2].color = 'text-emerald-500';
+      stages[3].status = 'in-progress';
+    } else if (s === 'principal_approved' || s === 'approved' || s === 'admin_approved') {
       stages[1].status = 'completed';
       stages[1].color = 'text-emerald-500';
       stages[1].icon = CheckCircle;
       stages[2].status = 'completed';
       stages[2].color = 'text-emerald-500';
       stages[2].icon = CheckCircle;
+      stages[3].status = 'completed';
+      stages[3].color = 'text-emerald-500';
+      stages[3].icon = CheckCircle;
     } else if (s.includes('rejected')) {
       if (s.includes('faculty')) {
         stages[1].status = 'failed';
@@ -64,6 +76,16 @@ const Dashboard = () => {
         stages[2].status = 'cancelled';
         stages[2].icon = AlertCircle;
         stages[2].color = 'text-surface-300';
+      } else if (s.includes('principal_rejected')) {
+        stages[1].status = 'completed';
+        stages[1].icon = CheckCircle;
+        stages[1].color = 'text-emerald-500';
+        stages[2].status = 'completed';
+        stages[2].icon = CheckCircle;
+        stages[2].color = 'text-emerald-500';
+        stages[3].status = 'failed';
+        stages[3].icon = XCircle;
+        stages[3].color = 'text-red-500';
       } else {
         stages[1].status = 'completed';
         stages[1].icon = CheckCircle;
@@ -71,6 +93,9 @@ const Dashboard = () => {
         stages[2].status = 'failed';
         stages[2].icon = XCircle;
         stages[2].color = 'text-red-500';
+        stages[3].status = 'cancelled';
+        stages[3].icon = AlertCircle;
+        stages[3].color = 'text-surface-300';
       }
     }
 

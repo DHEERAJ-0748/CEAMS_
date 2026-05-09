@@ -33,7 +33,7 @@ export const approveEvent = async (req, res) => {
     const { data: event, error } = await supabase
       .from('events')
       .update({
-        status: 'approved',
+        status: 'principal_pending',
         admin_remarks: remarks || null,
         updated_at: new Date().toISOString(),
       })

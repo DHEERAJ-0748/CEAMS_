@@ -7,7 +7,7 @@ import generateToken from '../utils/generateToken.js';
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, club_name } = req.body;
+    const { name, email, password, role, club_name, institution_id, department } = req.body;
 
     if (!name || !email || !password || !role) {
       res.status(400);
@@ -40,6 +40,8 @@ export const registerUser = async (req, res) => {
           password: hashedPassword,
           role,
           club_name: role === 'club' ? club_name : null,
+          institution_id: role === 'principal' ? institution_id : null,
+          department: role === 'principal' ? department : null,
         },
       ])
       .select()

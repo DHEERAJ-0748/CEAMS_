@@ -61,7 +61,7 @@ const AllEvents = () => {
       let updatedStatus = '';
       if (actionModal === 'approve') {
         await axios.put(`/api/admin/${selectedEvent.id}/approve`, { remarks });
-        updatedStatus = 'approved';
+        updatedStatus = 'principal_pending';
       } else if (actionModal === 'reject') {
         await axios.put(`/api/admin/${selectedEvent.id}/reject`, { reason: remarks });
         updatedStatus = 'rejected';
@@ -84,6 +84,8 @@ const AllEvents = () => {
   const StatusBadge = ({ status }) => {
     const styles = {
       'approved': 'badge-approved',
+      'principal_approved': 'badge-approved',
+      'principal_pending': 'badge-info',
       'faculty_approved': 'badge-pending',
       'rejected': 'badge-rejected',
       'admin_rejected': 'badge-rejected',
@@ -131,8 +133,9 @@ const AllEvents = () => {
               style={selectStyle}
             >
               <option value="all">All Statuses</option>
-              <option value="faculty_approved">Awaiting Approval</option>
-              <option value="approved">Approved</option>
+              <option value="faculty_approved">Review Pending</option>
+              <option value="principal_pending">Sent to Principal</option>
+              <option value="principal_approved">Authorized</option>
               <option value="rejected">Rejected</option>
             </select>
           </div>
