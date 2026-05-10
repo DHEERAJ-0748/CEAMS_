@@ -20,21 +20,41 @@ const CreateEvent = () => {
     expected_participants: '',
   });
   const [venues, setVenues] = useState([]);
+  const [occupiedDates, setOccupiedDates] = useState([]);
 
   useEffect(() => {
-    const fetchVenues = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get('/api/venues');
-        setVenues(data.filter(v => v.status === 'available'));
+        const [venuesRes, calendarRes] = await Promise.all([
+          axios.get('/api/venues'),
+          axios.get('/api/calendar') // Fetches all entries for general validation
+        ]);
+        setVenues(venuesRes.data.filter(v => v.status === 'available'));
+        setOccupiedDates(calendarRes.data);
       } catch (err) {
-        console.error('Failed to fetch venues', err);
+        console.error('Failed to fetch initial data', err);
       }
     };
-    fetchVenues();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    if (name === 'event_date') {
+      const conflict = occupiedDates.find(item => {
+        const start = item.start_date.split('T')[0];
+        const end = item.end_date.split('T')[0];
+        return value >= start && value <= end;
+      });
+      
+      if (conflict) {
+        setError(`Conflict: The date ${value} is already ${conflict.type === 'occupied' ? 'occupied by another event' : 'blocked (' + conflict.title + ')'}.`);
+      } else {
+        setError('');
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -216,7 +236,7 @@ const CreateEvent = () => {
           <button type="button" onClick={() => navigate(-1)} className="btn-secondary text-sm">
             Cancel
           </button>
-          <button type="submit" disabled={loading} className="btn-primary flex items-center justify-center gap-2 min-w-[150px] text-sm">
+          <button type="submit" disabled={loading || !!error} className={`btn-primary flex items-center justify-center gap-2 min-w-[150px] text-sm ${ (loading || !!error) ? 'opacity-50 cursor-not-allowed' : ''}`}>
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Submit Proposal'}
           </button>
         </div>

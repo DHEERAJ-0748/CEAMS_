@@ -11,6 +11,7 @@ import Register from './pages/Auth/Register';
 import ClubDashboard from './pages/Club/Dashboard';
 import CreateEvent from './pages/Club/CreateEvent';
 import MyEvents from './pages/Club/MyEvents';
+import ClubCalendar from './pages/Club/Calendar';
 import ClubNotifications from './pages/Club/Notifications';
 
 // Faculty Pages
@@ -74,6 +75,7 @@ function App() {
                   <Route path="dashboard" element={<ClubDashboard />} />
                   <Route path="create-event" element={<CreateEvent />} />
                   <Route path="my-events" element={<MyEvents />} />
+                  <Route path="calendar" element={<ClubCalendar />} />
                   <Route path="notifications" element={<ClubNotifications />} />
                 </Routes>
               </DashboardLayout>

@@ -56,6 +56,20 @@ export const createEvent = async (req, res) => {
       throw new Error(`The selected date is blocked due to: ${blockedDate.title} (${blockedDate.type})`);
     }
 
+    // Check if another event is already scheduled on this date
+    const { data: existingEvent, error: existingEventError } = await supabase
+      .from('events')
+      .select('id, title')
+      .eq('event_date', event_date)
+      .neq('status', 'rejected')
+      .maybeSingle();
+
+    if (existingEventError) throw existingEventError;
+    if (existingEvent) {
+      res.status(400);
+      throw new Error(`Another event (${existingEvent.title}) is already scheduled on this date.`);
+    }
+
     const { data: event, error } = await supabase
       .from('events')
       .insert([

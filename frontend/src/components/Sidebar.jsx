@@ -75,6 +75,7 @@ const Sidebar = () => {
             <SectionLabel>Events</SectionLabel>
             <NavItem to="/club/create-event" icon={CalendarPlus} label="Create Event" />
             <NavItem to="/club/my-events" icon={List} label="My Events" />
+            <NavItem to="/club/calendar" icon={CalendarDays} label="Academic Calendar" />
             <SectionLabel>Activity</SectionLabel>
             <NavItem to="/club/notifications" icon={Bell} label="Notifications" />
           </>
