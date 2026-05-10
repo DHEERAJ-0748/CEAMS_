@@ -1,4 +1,5 @@
 import Sidebar from './Sidebar';
+import JarvisChat from './Jarvis/JarvisChat';
 import { useAuth } from '../context/AuthContext';
 import { Menu, Search, Bell } from 'lucide-react';
 import { useState } from 'react';
@@ -76,6 +77,7 @@ const DashboardLayout = ({ children }) => {
           </div>
         </main>
       </div>
+      <JarvisChat />
     </div>
   );
 };
