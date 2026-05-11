@@ -34,7 +34,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Request Logging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  const logMsg = `${new Date().toISOString()} - ${req.method} ${req.url}`;
+  if (req.url.includes('/api/auth') && req.body.email) {
+    console.log(`${logMsg} - User: ${req.body.email}`);
+  } else {
+    console.log(logMsg);
+  }
   next();
 });
 

@@ -7,7 +7,9 @@ import generateToken from '../utils/generateToken.js';
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, club_name, institution_id, department } = req.body;
+    const { name, role, club_name, institution_id, department } = req.body;
+    const email = req.body.email?.toLowerCase().trim();
+    const password = req.body.password;
 
     if (!name || !email || !password || !role) {
       res.status(400);
@@ -22,8 +24,8 @@ export const registerUser = async (req, res) => {
       .single();
 
     if (userExists) {
-      res.status(400);
-      throw new Error('User already exists');
+      console.log(`Registration failed: User already exists - ${email}`);
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     // Hash password
@@ -48,8 +50,8 @@ export const registerUser = async (req, res) => {
       .single();
 
     if (error) {
-      res.status(400);
-      throw new Error(error.message);
+      console.error('Supabase Registration Error:', error);
+      return res.status(400).json({ message: error.message });
     }
 
     if (user) {
@@ -75,7 +77,8 @@ export const registerUser = async (req, res) => {
 // @access  Public
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.toLowerCase().trim();
+    const password = req.body.password;
 
     if (!email || !password) {
       res.status(400);
@@ -90,8 +93,8 @@ export const loginUser = async (req, res) => {
       .single();
 
     if (error || !user) {
-      res.status(400);
-      throw new Error('Invalid credentials');
+      console.log(`Login failed: User not found or Supabase error - ${email}`, error);
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
     // Check password
@@ -107,10 +110,14 @@ export const loginUser = async (req, res) => {
         token: generateToken(user.id, user.role),
       });
     } else {
-      res.status(400);
-      throw new Error('Invalid credentials');
+      console.log(`Login failed: Password mismatch for ${email}`);
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    res.status(res.statusCode === 200 ? 500 : res.statusCode).json({ message: error.message });
+    console.error('Auth Controller Error:', error);
+    res.status(res.statusCode === 200 ? 500 : res.statusCode).json({ 
+      message: error.message || 'Internal Server Error' 
+    });
   }
+
 };
