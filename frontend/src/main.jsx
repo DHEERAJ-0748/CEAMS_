@@ -4,6 +4,11 @@ import App from './App.jsx'
 import './index.css'
 import axios from 'axios'
 
+// Set the API base URL from environment variable.
+// In production (Vercel), VITE_API_URL points to the Render backend.
+// In local dev, it's empty so the Vite proxy handles /api requests.
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
+
 // Setup Axios Interceptor for Auth Token
 axios.interceptors.request.use(
   (config) => {

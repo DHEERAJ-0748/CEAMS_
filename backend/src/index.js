@@ -23,7 +23,30 @@ const app = express();
 
 // Middlewares
 app.use(helmet());
-app.use(cors());
+
+// CORS Configuration — allow the deployed Vercel frontend & local dev
+const allowedOrigins = [
+  process.env.FRONTEND_URL,        // e.g. https://ceams.vercel.app
+  'http://localhost:3000',          // local Vite dev
+  'http://localhost:5173',          // alternate Vite port
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some(o => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
